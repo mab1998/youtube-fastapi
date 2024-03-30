@@ -583,11 +583,12 @@ async def create_article(request_body: CreateArticelRequestBody):
             # return summary
             try:
                 summary = generate_gemini_content(transcript_text, prompt)
+                logger.info(f"Gemini Response : {summary}")
+
             except Exception as e:
                 logger.error(f"Failed to generate summary: {str(e)}")
                 # return {"status": "failed", "message": "Failed to generate summary"}
             
-            logger.info(f"Gemini Response : {summary}")
             
             
             # return  {"status": "failed", "message": summary}
