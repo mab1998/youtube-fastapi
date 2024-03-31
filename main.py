@@ -14,6 +14,13 @@ from pytube.exceptions import RegexMatchError
 from youtube_transcript_api import YouTubeTranscriptApi
 import datetime
 
+from services.transcription_service import transcribe_audio_from_url
+from fastapi.staticfiles import StaticFiles
+
+from schema import Language , AWSTranscriptCode, Model
+from pytube import YouTube
+
+
 # from get_transcript import generate_questions
 
 
@@ -751,3 +758,58 @@ def delete_article(blogId: str):
         status = "failed"
         return {"status": status, "message": f"Failed to delete article with blogId {blogId}: {str(e)}"}
     return {"status": status, "message": f"Article with blogId {blogId} deleted successfully"}
+
+from services.youtube_service import YouTubeDownloader
+
+
+downloader = YouTubeDownloader()
+
+
+@app.get("/download-audio",tags=["audio_aws"])
+async def download_audio(url: str):
+    
+    
+    # if not YouTubeDownloader.check_video_length(url=url):
+        
+           
+    #     raise HTTPException(status_code=400, detail="Video is longer than 10 minutes.")
+    try:
+        # if is_debug:
+        #     return TranscriptResponse(transcript="Audio downloaded successfully 1.", mp3_path="http://3.84.5.107/static/تصريحات الملكة رانيا عن السابع من أكتوبر تُغضب بن غفير.mp3")
+        
+
+        audio_file_path = downloader.download_youtube_audio(url=url)
+        
+        
+        # split audio_file_path to get the audio file name and add url "http://3.84.5.107/downloads"
+        
+        base_url = "http://api.findapply.com/static" 
+        audio_file_path = audio_file_path.split("/downloads")[1]
+        audio_file_path = base_url + audio_file_path
+
+   
+
+        return {"mp3":audio_file_path,"status":"succefull"} 
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+@app.post("/transcribe-audio", tags=["audio_aws"])
+
+async def transcribe_audio(audio_url: str, lang: AWSTranscriptCode):
+    
+    # print("audio_url", audio_url)
+    
+        
+    try:
+       
+        transcription_result = transcribe_audio_from_url(audio_url, language_code=lang)
+
+        return transcription_result
+        # return  transcription_result
+        # return SummarizeResponse(transcript=transcription_result.get("transcript_text", ""), mp3_path=mp3_path)
+        return TranscriptResponse(transcript=transcription_result, mp3_path=audio_url)
+
+    
+    except HTTPException as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+    
