@@ -768,20 +768,12 @@ downloader = YouTubeDownloader()
 @app.get("/download-audio",tags=["audio_aws"])
 async def download_audio(url: str):
     
-    
-    # if not YouTubeDownloader.check_video_length(url=url):
-        
-           
-    #     raise HTTPException(status_code=400, detail="Video is longer than 10 minutes.")
+
     try:
-        # if is_debug:
-        #     return TranscriptResponse(transcript="Audio downloaded successfully 1.", mp3_path="http://3.84.5.107/static/تصريحات الملكة رانيا عن السابع من أكتوبر تُغضب بن غفير.mp3")
-        
 
         audio_file_path = downloader.download_youtube_audio(url=url)
         
         
-        # split audio_file_path to get the audio file name and add url "http://3.84.5.107/downloads"
         
         base_url = "http://api.findapply.com/static" 
         audio_file_path = audio_file_path.split("/downloads")[1]
@@ -791,6 +783,7 @@ async def download_audio(url: str):
 
         return {"mp3":audio_file_path,"status":"succefull"} 
     except HTTPException as e:
+        return {"status":"failed","message":e.detail}
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
 @app.post("/transcribe-audio", tags=["audio_aws"])
