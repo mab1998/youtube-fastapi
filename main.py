@@ -197,6 +197,9 @@ def generate_gemini_content(transcript_text, prompt):
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="downloads"), name="downloads")
+
+
 # Create a TinyDB database instance
 db = TinyDB("my_database.json")
 
