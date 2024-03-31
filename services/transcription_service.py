@@ -35,7 +35,8 @@ def transcribe_audio_from_url(url,language_code):
     file_name = url.split('/')[-1]
 
     # Create the file path
-    file_path = '../downloads/' + file_name
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, '/downloads/', file_name)
 
     # Create an S3 client
     s3_client = boto3.client('s3')
